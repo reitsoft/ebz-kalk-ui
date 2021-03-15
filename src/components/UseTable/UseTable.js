@@ -1,0 +1,134 @@
+import React, { useState } from "react";
+import {
+  makeStyles,
+  Table,
+  TableCell,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
+} from "@material-ui/core";
+
+const useStyles = makeStyles((theme) => ({
+  table: {
+    marginTop: theme.spacing(3),
+    "& thead th": {
+      fontWeight: "600",
+      color: theme.palette.primary,
+      backgroundColor: theme.palette.grey[200],
+    },
+    "& tbody td": {
+      fontWeight: "400",
+    },
+    "& tbody tr:hover": {
+      backgroundColor: theme.palette.grey[100],
+      cursor: "pointer",
+    },
+  },
+}));
+
+export default function useTable(records, headCells, filterFn) {
+  const classes = useStyles();
+  const pagesOptions = [5, 10, 25, 50];
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(pagesOptions[0]);
+  const [order, setOrder] = useState();
+  const [orderBy, setOrderBy] = useState();
+
+  const TblContainer = (props) => (
+    <Table size="small" className={classes.table} stickyHeader>
+      {props.children}
+    </Table>
+  );
+
+  const TblHead = (props) => {
+    const handleSortRequest = (cellId) => {
+      const isAsc = orderBy === cellId && order === "asc";
+      setOrder(isAsc ? "desc" : "asc");
+      setOrderBy(cellId);
+    };
+
+    return (
+      <TableHead>
+        <TableRow>
+          {headCells.map((cell) => (
+            <TableCell
+              key={cell.id}
+              sortDirection={orderBy === cell.id ? order : false}
+            >
+              {cell.disableSorting ? (
+                cell.label
+              ) : (
+                <TableSortLabel
+                  active={orderBy === cell.id}
+                  direction={orderBy === cell.id ? order : "asc"}
+                  onClick={() => handleSortRequest(cell.id)}
+                >
+                  {cell.label}
+                </TableSortLabel>
+              )}
+            </TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+    );
+  };
+
+  const handleChangePage = (e, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (e) => {
+    setRowsPerPage(parseInt(e.target.value, 10));
+    setPage(0);
+  };
+
+  const TblPagination = () => (
+    <TablePagination
+      variant="outlined"
+      shape="rounded"
+      component="div"
+      page={page}
+      rowsPerPageOptions={pagesOptions}
+      rowsPerPage={rowsPerPage}
+      count={records.length}
+      onChangePage={handleChangePage}
+      onChangeRowsPerPage={handleChangeRowsPerPage}
+    />
+  );
+
+  function stableSort(array, comparator) {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
+  }
+
+  function getComparator(order, orderBy) {
+    return order === "desc"
+      ? (a, b) => descComp(a, b, orderBy)
+      : (a, b) => -descComp(a, b, orderBy);
+  }
+
+  function descComp(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) {
+      return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  const recAfterPagindSorting = () => {
+    return stableSort(
+      filterFn.fn(records),
+      getComparator(order, orderBy)
+    ).slice(page * rowsPerPage, (page + 1) * rowsPerPage);
+  };
+
+  return { TblContainer, TblHead, TblPagination, recAfterPagindSorting };
+}
