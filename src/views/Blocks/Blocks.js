@@ -8,6 +8,7 @@ import {
   TableCell,
   TableRow,
   Toolbar,
+  Tooltip,
 } from "@material-ui/core";
 // @material-ui/icons
 import DashboardIcon from "@material-ui/icons/Dashboard";
@@ -15,64 +16,60 @@ import SearchIcon from "@material-ui/icons/Search";
 import AddIcon from "@material-ui/icons/Add";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-// core components
-// import GridItem from "components/Grid/GridItem.js";
-// import GridContainer from "components/Grid/GridContainer.js";
-// import Table from "components/Table/Table.js";
-// import Card from "components/Card/Card.js";
-// import CardHeader from "components/Card/CardHeader.js";
-// import CardBody from "components/Card/CardBody.js";
+// components
 import useTable from "../../components/UseTable/UseTable";
 import PageHeader from "../../components/PageHeader/PageHeader";
 import Controls from "../../components/Controls";
 import BlocksForm from "./BlocksForm";
-
 // API
 import BlockAPI from "../../api";
+// Styles
+import styles from "assets/jss/material-dashboard-react/components/tasksStyle";
 
-const useStyles = makeStyles(theme=>({
-    cardCategoryWhite: {
-      "&,& a,& a:hover,& a:focus": {
-        color: "rgba(255,255,255,.62)",
-        margin: "0",
-        fontSize: "14px",
-        marginTop: "0",
-        marginBottom: "0",
-      },
-      "& a,& a:hover,& a:focus": {
-        color: "#FFFFFF",
-      },
+const useStyles = makeStyles((theme) => ({
+  ...styles,
+  cardCategoryWhite: {
+    "&,& a,& a:hover,& a:focus": {
+      color: "rgba(255,255,255,.62)",
+      margin: "0",
+      fontSize: "14px",
+      marginTop: "0",
+      marginBottom: "0",
     },
-    cardTitleWhite: {
+    "& a,& a:hover,& a:focus": {
       color: "#FFFFFF",
-      marginTop: "0px",
-      minHeight: "auto",
-      fontWeight: "300",
-      fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-      marginBottom: "3px",
-      textDecoration: "none",
-      "& small": {
-        color: "#777",
-        fontSize: "65%",
-        fontWeight: "400",
-        lineHeight: "1",
-      },
     },
-    pageContent: {
-      margin: theme.spacing(0),
-      padding: theme.spacing(2),
+  },
+  cardTitleWhite: {
+    color: "#FFFFFF",
+    marginTop: "0px",
+    minHeight: "auto",
+    fontWeight: "300",
+    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+    marginBottom: "3px",
+    textDecoration: "none",
+    "& small": {
+      color: "#777",
+      fontSize: "65%",
+      fontWeight: "400",
+      lineHeight: "1",
     },
-    tableToolbar: {
-      justifyContent: "space-between",
-    },
-    searchInput: {
-      width: "25rem",
-    },
-    AddButton: {
-      position: "relative",
-      float: "right",
-    },
-  }))
+  },
+  pageContent: {
+    margin: theme.spacing(0),
+    padding: theme.spacing(2),
+  },
+  tableToolbar: {
+    justifyContent: "space-between",
+  },
+  searchInput: {
+    width: "25rem",
+  },
+  AddButton: {
+    position: "relative",
+    float: "right",
+  },
+}));
 
 const headCells = [
   { id: "name", label: "Block" },
@@ -80,8 +77,6 @@ const headCells = [
   { id: "compIside", label: "Components included" },
   { id: "actions", label: "Actions", disableSorting: true },
 ];
-
-// const useStyles = makeStyles(styles);
 
 export default function Blocks() {
   const classes = useStyles();
@@ -99,6 +94,7 @@ export default function Blocks() {
     type: "",
   });
   const [filterFn, setFilterFn] = useState({
+    // eslint-disable-line
     fn: (items) => {
       return items;
     },
@@ -153,11 +149,6 @@ export default function Blocks() {
     setConfirmDialog({ ...confirmDialog, isOpen: false });
     try {
       await BlockAPI.delete(`/blocks/${id}`);
-      // setRecords(
-      //   records.filter((rec) => {
-      //     return rec.id !== id;
-      //   })
-      // );
     } catch (error) {
       console.log(error);
     }
@@ -179,9 +170,9 @@ export default function Blocks() {
   const handleTableSearch = (e) => {
     const val = e.target.value.toLowerCase();
     setFilterFn({
-      fn: (items) => {
-        if (e.target.value === "") return items;
-        else return items.filter((x) => x.name.toLowerCase().includes(val));
+      fn: (records) => {
+        if (val === "") return records;
+        else return records.filter((x) => x.name.toLowerCase().includes(val));
       },
     });
   };
@@ -193,14 +184,12 @@ export default function Blocks() {
 
   return (
     <>
-      {/* <GridContainer> */}
-      
       <Paper className={classes.pageContent}>
-      <PageHeader
-        title="Blocks"
-        subtitle="Blocks contain components that fit together thematically."
-        icon={<DashboardIcon style={{ fontSize: 56 }} />}
-      />
+        <PageHeader
+          title="Blocks"
+          subtitle="Blocks contain components that fit together thematically."
+          icon={<DashboardIcon style={{ fontSize: 56 }} />}
+        />
         <Toolbar disableGutters className={classes.tableToolbar}>
           <Controls.Input
             className={classes.searchInput}
@@ -232,27 +221,43 @@ export default function Blocks() {
                 <TableCell>{rec.description}</TableCell>
                 <TableCell>{rec.compIside}</TableCell>
                 <TableCell>
-                  <Controls.ActionButton
-                    color="primary"
-                    onClick={() => openInPopup(rec)}
+                  <Tooltip
+                    id="tooltip-top"
+                    title="Edit Block"
+                    placement="top"
+                    classes={{ tooltip: classes.tooltip }}
                   >
-                    <EditIcon fontSize="small" />
-                  </Controls.ActionButton>
-                  <Controls.ActionButton
-                    color="secondary"
-                    onClick={() => {
-                      setConfirmDialog({
-                        isOpen: true,
-                        title: "Sind Sie sich sicher?",
-                        subtitle: "Datensatz wird unwiederuflich gelöscht.",
-                        onConfirm: () => {
-                          handleDelete(rec.id);
-                        },
-                      });
-                    }}
+                    <Controls.ActionButton
+                      color="primary"
+                      type="edit"
+                      onClick={() => openInPopup(rec)}
+                    >
+                      <EditIcon fontSize="small" />
+                    </Controls.ActionButton>
+                  </Tooltip>
+                  <Tooltip
+                    id="tooltip-top-start"
+                    title="Remove"
+                    placement="top"
+                    classes={{ tooltip: classes.tooltip }}
                   >
-                    <DeleteIcon fontSize="small" />
-                  </Controls.ActionButton>
+                    <Controls.ActionButton
+                      color="secondary"
+                      type="delete"
+                      onClick={() => {
+                        setConfirmDialog({
+                          isOpen: true,
+                          title: "Sind Sie sich sicher?",
+                          subtitle: "Datensatz wird unwiederuflich gelöscht.",
+                          onConfirm: () => {
+                            handleDelete(rec.id);
+                          },
+                        });
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </Controls.ActionButton>
+                  </Tooltip>
                 </TableCell>
               </TableRow>
             ))}
