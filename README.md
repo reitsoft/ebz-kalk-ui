@@ -1,1 +1,1 @@
-# EBZ||Components - Material Dashboard React
+# EBZ Components - Material Dashboard React
