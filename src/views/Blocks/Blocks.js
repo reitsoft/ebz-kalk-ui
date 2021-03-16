@@ -17,6 +17,8 @@ import AddIcon from "@material-ui/icons/Add";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 // components
+import GridItem from "components/Grid/GridItem.js";
+import GridContainer from "components/Grid/GridContainer.js";
 import useTable from "../../components/UseTable/UseTable";
 import PageHeader from "../../components/PageHeader/PageHeader";
 import Controls from "../../components/Controls";
@@ -183,7 +185,8 @@ export default function Blocks() {
   };
 
   return (
-    <>
+    <GridContainer>
+      <GridItem xs={12} sm={12} md={8}>
       <Paper className={classes.pageContent}>
         <PageHeader
           title="Blocks"
@@ -278,6 +281,7 @@ export default function Blocks() {
         confirmDialog={confirmDialog}
         setConfirmDialog={setConfirmDialog}
       />
-    </>
+    </GridItem>
+    </GridContainer>
   );
 }

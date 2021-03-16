@@ -8,18 +8,20 @@ const useStyles = makeStyles((theme) => ({
     // backgroundColor: "#fbfbff",
   },
   pageHeader: {
-    padding: theme.spacing(2),
+    padding: theme.spacing(0),
     display: "flex",
     marginBotton: theme.spacing(1),
   },
   pageIcon: {
     display: "inline-block",
     padding: theme.spacing(2),
+    paddingLeft: 0,
+    paddingTop: theme.spacing(1),
     color: theme.palette.primary.main,
   },
   pageTitle: {
-    paddingLeft: theme.spacing(1),
-    paddingTop: theme.spacing(2),
+    paddingLeft: theme.spacing(0),
+    paddingTop: theme.spacing(1),
     '& MuiTypography-subtitle2': {
       opacity: "0.5",
       fontColor: "red",
