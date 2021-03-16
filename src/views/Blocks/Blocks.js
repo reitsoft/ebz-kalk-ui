@@ -8,7 +8,6 @@ import {
   TableCell,
   TableRow,
   Toolbar,
-  Tooltip,
 } from "@material-ui/core";
 // @material-ui/icons
 import DashboardIcon from "@material-ui/icons/Dashboard";
@@ -27,6 +26,7 @@ import BlocksForm from "./BlocksForm";
 import BlockAPI from "../../api";
 // Styles
 import styles from "assets/jss/material-dashboard-react/components/tasksStyle";
+import { format, parseISO } from "date-fns";
 
 const useStyles = makeStyles((theme) => ({
   ...styles,
@@ -76,7 +76,8 @@ const useStyles = makeStyles((theme) => ({
 const headCells = [
   { id: "name", label: "Block" },
   { id: "description", label: "Description" },
-  { id: "compIside", label: "Components included" },
+  { id: "compIside", label: "Components inside" },
+  { id: "updatedAt", label: "Last update" },
   { id: "actions", label: "Actions", disableSorting: true },
 ];
 
@@ -106,6 +107,7 @@ export default function Blocks() {
     try {
       const response = await BlockAPI.get("/blocks");
       setRecords(response.data.data);
+      console.log(response.data.data)
     } catch (error) {
       console.log(error);
     }
@@ -186,50 +188,45 @@ export default function Blocks() {
 
   return (
     <GridContainer>
-      <GridItem xs={12} sm={12} md={8}>
-      <Paper className={classes.pageContent}>
-        <PageHeader
-          title="Blocks"
-          subtitle="Blocks contain components that fit together thematically."
-          icon={<DashboardIcon style={{ fontSize: 56 }} />}
-        />
-        <Toolbar disableGutters className={classes.tableToolbar}>
-          <Controls.Input
-            className={classes.searchInput}
-            onChange={handleTableSearch}
-            label="Search .."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
+      <GridItem xs={12} sm={12} md={12}>
+        <Paper className={classes.pageContent}>
+          <PageHeader
+            title="Blocks"
+            subtitle="Blocks contain components that fit together thematically."
+            icon={<DashboardIcon style={{ fontSize: 56 }} />}
           />
-          <Controls.Button
-            text="Add New"
-            onClick={() => {
-              setOpenPopup(true);
-              setSelectedRecord(null);
-            }}
-            startIcon={<AddIcon />}
-          />
-        </Toolbar>
-        <TblContainer>
-          <TblHead />
-          <TableBody>
-            {recAfterPagindSorting().map((rec) => (
-              <TableRow key={rec.id}>
-                <TableCell>{rec.name}</TableCell>
-                <TableCell>{rec.description}</TableCell>
-                <TableCell>{rec.compIside}</TableCell>
-                <TableCell>
-                  <Tooltip
-                    id="tooltip-top"
-                    title="Edit Block"
-                    placement="top"
-                    classes={{ tooltip: classes.tooltip }}
-                  >
+          <Toolbar disableGutters className={classes.tableToolbar}>
+            <Controls.Input
+              className={classes.searchInput}
+              onChange={handleTableSearch}
+              label="Search .."
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Controls.Button
+              text="Add New"
+              onClick={() => {
+                setOpenPopup(true);
+                setSelectedRecord(null);
+              }}
+              startIcon={<AddIcon />}
+            />
+          </Toolbar>
+          <TblContainer>
+            <TblHead />
+            <TableBody>
+              {recAfterPagindSorting().map((rec) => (
+                <TableRow key={rec.id}>
+                  <TableCell>{rec.name}</TableCell>
+                  <TableCell>{rec.description}</TableCell>
+                  <TableCell>{rec.components.length}</TableCell>
+                  <TableCell>{format(parseISO(rec.updatedAt), "dd.MM.yyyy")}</TableCell>
+                  <TableCell>
                     <Controls.ActionButton
                       color="primary"
                       type="edit"
@@ -237,13 +234,7 @@ export default function Blocks() {
                     >
                       <EditIcon fontSize="small" />
                     </Controls.ActionButton>
-                  </Tooltip>
-                  <Tooltip
-                    id="tooltip-top-start"
-                    title="Remove"
-                    placement="top"
-                    classes={{ tooltip: classes.tooltip }}
-                  >
+
                     <Controls.ActionButton
                       color="secondary"
                       type="delete"
@@ -260,28 +251,27 @@ export default function Blocks() {
                     >
                       <DeleteIcon fontSize="small" />
                     </Controls.ActionButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </TblContainer>
-        <TblPagination />
-      </Paper>
-      {/* </GridContainer> */}
-      <Controls.Popup
-        title={selectedRecord ? "Edit Block" : "Add new Block"}
-        openPopup={openPopup}
-        setOpenPopup={setOpenPopup}
-      >
-        <BlocksForm addOrEdit={addOrEdit} selectedRecord={selectedRecord} />
-      </Controls.Popup>
-      <Controls.Notification notify={notify} setNotify={setNotify} />
-      <Controls.ConfirmDialog
-        confirmDialog={confirmDialog}
-        setConfirmDialog={setConfirmDialog}
-      />
-    </GridItem>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </TblContainer>
+          <TblPagination />
+        </Paper>
+        {/* </GridContainer> */}
+        <Controls.Popup
+          title={selectedRecord ? "Edit Block" : "Add new Block"}
+          openPopup={openPopup}
+          setOpenPopup={setOpenPopup}
+        >
+          <BlocksForm addOrEdit={addOrEdit} selectedRecord={selectedRecord} />
+        </Controls.Popup>
+        <Controls.Notification notify={notify} setNotify={setNotify} />
+        <Controls.ConfirmDialog
+          confirmDialog={confirmDialog}
+          setConfirmDialog={setConfirmDialog}
+        />
+      </GridItem>
     </GridContainer>
   );
 }
