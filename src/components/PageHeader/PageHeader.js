@@ -2,35 +2,9 @@ import React from "react";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
+import styles from "../../assets/jss/material-dashboard-react/components/pageHeaderStyle";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    // backgroundColor: "#fbfbff",
-  },
-  pageHeader: {
-    padding: theme.spacing(0),
-    display: "flex",
-    marginBotton: theme.spacing(1),
-  },
-  pageIcon: {
-    display: "inline-block",
-    padding: theme.spacing(2),
-    paddingLeft: 0,
-    paddingTop: theme.spacing(1),
-    color: theme.palette.primary.main,
-  },
-  pageTitle: {
-    paddingLeft: theme.spacing(0),
-    paddingTop: theme.spacing(1),
-    '& MuiTypography-subtitle2': {
-      opacity: "0.5",
-      fontColor: "red",
-    },
-  },
-  pageSubtitle: {
-    opacity: "0.5",
-  }
-}));
+const useStyles = makeStyles(styles);
 
 const PageHeader = (props) => {
   const classes = useStyles();

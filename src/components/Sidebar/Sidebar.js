@@ -24,13 +24,13 @@ export default function Sidebar(props) {
     return window.location.href.indexOf(routeName) > -1 ? true : false;
   }
   const { color, logo, image, logoText, routes } = props;
-  
+
   var links = (
     <List className={classes.list}>
       {routes.map((prop, key) => {
         if (prop.isShown === "yes") {
-          var activePro = " ";
           var listItemClasses;
+
           listItemClasses = classNames({
             [" " + classes[color]]: activeRoute(prop.layout + prop.path),
           });
@@ -41,31 +41,17 @@ export default function Sidebar(props) {
           return (
             <NavLink
               to={prop.layout + prop.path}
-              className={activePro + classes.item}
+              className={classes.item}
               activeClassName="active"
               key={key}
             >
               <ListItem button className={classes.itemLink + listItemClasses}>
-                {typeof prop.icon === "string" ? (
-                  <Icon
-                    className={classNames(classes.itemIcon, whiteFontClasses, {
-                      [classes.itemIconRTL]: props.rtlActive,
-                    })}
-                  >
-                    {prop.icon}
-                  </Icon>
-                ) : (
-                  <prop.icon
-                    className={classNames(classes.itemIcon, whiteFontClasses, {
-                      [classes.itemIconRTL]: props.rtlActive,
-                    })}
-                  />
-                )}
+                <prop.icon
+                  className={classNames(classes.itemIcon, whiteFontClasses)}
+                />
                 <ListItemText
-                  primary={props.rtlActive ? prop.rtlName : prop.name}
-                  className={classNames(classes.itemText, whiteFontClasses, {
-                    [classes.itemTextRTL]: props.rtlActive,
-                  })}
+                  primary={prop.name}
+                  className={classNames(classes.itemText, whiteFontClasses)}
                   disableTypography={true}
                 />
               </ListItem>
@@ -80,9 +66,7 @@ export default function Sidebar(props) {
     <div className={classes.logo}>
       <a
         href="https://www.ebz-group.com"
-        className={classNames(classes.logoLink, {
-          [classes.logoLinkRTL]: props.rtlActive,
-        })}
+        className={classNames(classes.logoLink)}
         target="_blank"
       >
         <div className={classes.logoImage}>
@@ -101,9 +85,7 @@ export default function Sidebar(props) {
           anchor={props.rtlActive ? "left" : "right"}
           open={props.open}
           classes={{
-            paper: classNames(classes.drawerPaper, {
-              [classes.drawerPaperRTL]: props.rtlActive,
-            }),
+            paper: classNames(classes.drawerPaper),
           }}
           onClose={props.handleDrawerToggle}
           ModalProps={{
@@ -123,13 +105,11 @@ export default function Sidebar(props) {
       </Hidden>
       <Hidden smDown implementation="css">
         <Drawer
-          anchor={props.rtlActive ? "right" : "left"}
+          anchor="left"
           variant="permanent"
           open
           classes={{
-            paper: classNames(classes.drawerPaper, {
-              [classes.drawerPaperRTL]: props.rtlActive,
-            }),
+            paper: classNames(classes.drawerPaper),
           }}
         >
           {brand}

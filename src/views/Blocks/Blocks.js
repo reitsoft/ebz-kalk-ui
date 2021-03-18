@@ -25,11 +25,10 @@ import BlocksForm from "./BlocksForm";
 // API
 import BlockAPI from "../../api";
 // Styles
-import styles from "../../assets/jss/material-dashboard-react/components/buttonStyle";
 import { format, parseISO } from "date-fns";
 
 const useStyles = makeStyles((theme) => ({
-  ...styles,
+
   pageContent: {
     margin: theme.spacing(0),
     padding: theme.spacing(2),

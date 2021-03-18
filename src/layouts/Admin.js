@@ -19,7 +19,6 @@ let ps;
 const switchRoutes = (
   <Switch>
     {routes.map((prop, key) => {
-      // if (prop.layout === "/admin") {
       return (
         <Route
           path={prop.layout + prop.path}
@@ -27,8 +26,6 @@ const switchRoutes = (
           key={key}
         />
       );
-      //   }
-      //   return null;
     })}
     <Redirect from="/admin" to="/admin/dashboard" />
   </Switch>
@@ -39,8 +36,6 @@ const useStyles = makeStyles(styles);
 export default function Admin({ ...rest }) {
   const classes = useStyles();
   const mainPanel = React.createRef();
-  const [image, setImage] = React.useState(bgImage); // eslint-disable-line
-  const [color, setColor] = React.useState("blue"); // eslint-disable-line
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const handleDrawerToggle = () => {
@@ -78,10 +73,10 @@ export default function Admin({ ...rest }) {
         routes={routes}
         logoText={"Components"}
         logo={logo}
-        image={image}
+        image={bgImage}
         handleDrawerToggle={handleDrawerToggle}
         open={mobileOpen}
-        color={color}
+        color="blue"
         {...rest}
       />
       <div className={classes.mainPanel} ref={mainPanel}>

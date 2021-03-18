@@ -152,14 +152,6 @@ const BlocksDetail = (props) => {
                 // setOpenPopup(true);
                 // setSelectedRecord(null);
               }}><AddIcon />Add Component</Button>
-            {/* <Controls.Button
-              text="Add Component"
-              onClick={() => {
-                // setOpenPopup(true);
-                // setSelectedRecord(null);
-              }}
-              startIcon={<AddIcon />}
-            /> */}
           </Toolbar>
           <TblContainer>
             <TblHead />
@@ -173,7 +165,7 @@ const BlocksDetail = (props) => {
                   </TableCell>
                   <TableCell>
                     <Controls.ActionButton
-                      color="secondary"
+                      color="primary"
                       type="delete"
                       onClick={() => {
                         setConfirmDialog({
