@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@material-ui/core";
 import ActionButton from "./ActionButton";
-import CloseIcon from "@material-ui/icons/Close";
 
 const useStyles = makeStyles((theme) => ({
   dialogWrapper: {
@@ -17,15 +16,15 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     paddingLeft: theme.spacing(1.5),
-    paddingRight: 0
+    paddingRight: 0,
   },
   content: {
     paddingLeft: 0,
-    paddingRight: 0
+    paddingRight: 0,
   },
   "& .MuiFormControl-root": {
-    width: "100%"
-  }
+    width: "100%",
+  },
 }));
 
 export default function Popup(props) {
@@ -39,15 +38,19 @@ export default function Popup(props) {
     >
       <DialogTitle className={classes.title}>
         <div style={{ display: "flex" }}>
-          <Typography variant="h5" component="div" style={{ flexGrow: 1, marginTop: 8 }}>
+          <Typography
+            variant="h5"
+            component="div"
+            style={{ flexGrow: 1, marginTop: 8 }}
+          >
             {title}
           </Typography>
-          <ActionButton color="secondary" onClick={()=>setOpenPopup(false)}>
-            <CloseIcon />
-          </ActionButton>
+          <ActionButton type="close" onClick={() => setOpenPopup(false)} />
         </div>
       </DialogTitle>
-      <DialogContent dividers className={classes.content}>{children}</DialogContent>
+      <DialogContent dividers className={classes.content}>
+        {children}
+      </DialogContent>
     </Dialog>
   );
 }

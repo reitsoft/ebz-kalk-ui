@@ -3,7 +3,8 @@ import {
   primaryColor,
   dangerColor,
   grayColor,
-  successColor
+  roseColor,
+  successColor,
 } from "assets/jss/material-dashboard-react.js";
 import tooltipStyle from "assets/jss/material-dashboard-react/tooltipStyle.js";
 import checkboxAdnRadioStyle from "assets/jss/material-dashboard-react/checkboxAdnRadioStyle.js";
@@ -59,6 +60,11 @@ const tasksStyle = {
   close: {
     backgroundColor: "transparent",
     color: dangerColor[0],
+    boxShadow: "none"
+  },
+  copy: {
+    backgroundColor: "transparent",
+    color: roseColor[3],
     boxShadow: "none"
   }
 };

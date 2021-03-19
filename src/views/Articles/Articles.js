@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { hist } from "../../index";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
 import { DataGrid } from "@material-ui/data-grid";
@@ -7,50 +8,17 @@ import GridItem from "components/Grid/GridItem";
 import { InputAdornment, Paper, Toolbar } from "@material-ui/core";
 import PageHeader from "components/PageHeader/PageHeader";
 import Controls from "components/Controls";
+import Button from "components/CustomButtons/Button";
 // Icons
 import ExtensionIcon from "@material-ui/icons/Extension";
 import SearchIcon from "@material-ui/icons/Search";
 import AddIcon from "@material-ui/icons/Add";
-// core components
-// import GridItem from "components/Grid/GridItem.js";
-// import GridContainer from "components/Grid/GridContainer.js";
-// import Table from "components/Table/Table.js";
-// import Card from "components/Card/Card.js";
-// import CardHeader from "components/Card/CardHeader.js";
-// import CardBody from "components/Card/CardBody.js";
-import styles from "assets/jss/material-dashboard-react/components/tasksStyle";
+
 import BlockAPI from "../../api";
 import { format, parseISO } from "date-fns";
+import ArticlesForm from "./ArticlesForm";
 
 const useStyles = makeStyles((theme) => ({
-  ...styles,
-  cardCategoryWhite: {
-    "&,& a,& a:hover,& a:focus": {
-      color: "rgba(255,255,255,.62)",
-      margin: "0",
-      fontSize: "14px",
-      marginTop: "0",
-      marginBottom: "0",
-    },
-    "& a,& a:hover,& a:focus": {
-      color: "#FFFFFF",
-    },
-  },
-  cardTitleWhite: {
-    color: "#FFFFFF",
-    marginTop: "0px",
-    minHeight: "auto",
-    fontWeight: "300",
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
-    marginBottom: "3px",
-    textDecoration: "none",
-    "& small": {
-      color: "#777",
-      fontSize: "65%",
-      fontWeight: "400",
-      lineHeight: "1",
-    },
-  },
   pageContent: {
     margin: theme.spacing(0),
     padding: theme.spacing(2),
@@ -67,75 +35,85 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const columns = [
-  {
-    field: "name",
-    headerName: "Article",
-    // width: 280,
-    disableClickEventBubbling: true,
-    flex: 0.3,
-  },
-  {
-    field: "description",
-    headerName: "Description",
-    // width: 550,
-    disableClickEventBubbling: true,
-    flex: 1,
-  },
-  {
-    field: "inComponents",
-    headerName: "Used",
-    type: "number",
-    disableClickEventBubbling: true,
-    valueGetter: (params) => (params.row.components.length),
-    flex: 0.15,
-  },
-    
-  {
-    field: "price",
-    headerName: "Price",
-    type: "number",
-    // width: 200,
-    disableClickEventBubbling: true,
-    flex: 0.15,
-  },
-  {
-    field: "pricetype",
-    headerName: "Pricetype",
-    type: "number",
-    // width: 120,
-    disableClickEventBubbling: true,
-    flex: 0.2,
-  },
-  {
-    field: "updatedAt",
-    headerName: "Last update",
-    type: "number",
-    disableClickEventBubbling: true,
-    flex: 0.18,
-  },
-  // {
-  //   field: "fullName",
-  //   headerName: "Full name",
-  //   description: "This column has a value getter and is not sortable.",
-  //   sortable: false,
-  //   width: 160,
-  //   disableClickEventBubbling: true,
-  //   valueGetter: (params) =>
-  //     `${params.getValue("firstName") || ""} ${
-  //       params.getValue("lastName") || ""
-  //     }`,
-  // },
-];
-
 export default function TableList() {
   const classes = useStyles();
   const [dataLoading, setDataLoading] = useState(false);
   const [records, setRecords] = useState([]);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [openPopup, setOpenPopup] = useState(false);
+  const [action, setAction] = useState("")
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: "",
+    subtitle: "",
+  });
+  const [notify, setNotify] = useState({
+    isOpen: false,
+    message: "",
+    type: "",
+  });
+
+  const actions = {edit:"edit", copy:"copy"}
+
+  const columns = [
+    {
+      field: "name",
+      headerName: "Article",
+      // width: 280,
+      disableClickEventBubbling: true,
+      flex: 0.3,
+    },
+    {
+      field: "description",
+      headerName: "Description",
+      // width: 550,
+      disableClickEventBubbling: true,
+      flex: 1,
+    },
+    {
+      field: "inComponents",
+      headerName: "Used",
+      type: "number",
+      disableClickEventBubbling: true,
+      valueGetter: (params) => params.row.components.length,
+      flex: 0.15,
+    },
+    {
+      field: "price",
+      headerName: "Price",
+      type: "number",
+      // width: 200,
+      disableClickEventBubbling: true,
+      flex: 0.2,
+    },
+    {
+      field: "pricetype",
+      headerName: "Pricetype",
+      type: "number",
+      // width: 120,
+      disableClickEventBubbling: true,
+      flex: 0.2,
+    },
+    {
+      field: "updatedAt",
+      headerName: "Updated at",
+      type: "number",
+      disableClickEventBubbling: true,
+      flex: 0.22,
+    },
+    {
+      field: "actions",
+      headerName: "Actions",
+      type: "number",
+      disableClickEventBubbling: true,
+      flex: 0.28,
+      renderCell: ({ row }) => <ActionButtons rec={row} />,
+    },
+  ];
 
   const fetchData = async () => {
     try {
-      setDataLoading(true)
+      setDataLoading(true);
       const response = await BlockAPI.get("/articles");
       const rows = response.data.data.map((rec) => ({
         ...rec,
@@ -144,9 +122,83 @@ export default function TableList() {
         updatedAt: format(parseISO(rec.updatedAt), "dd.MM.yyyy"),
       }));
       setRecords(rows);
-      setDataLoading(false)
+      setDataLoading(false);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const addOrEdit = async (rec, resetForm, action ) => {
+    const newRec = {
+      id: rec.id,
+      name: rec.name,
+      description: rec.description,
+      pricetype_id: rec.pricetype_id,
+      price: rec.price.split(" ")[0],
+    };
+  
+    if (newRec.id === 0 || action==="copy") {
+      try {
+        await BlockAPI.post("/articles", newRec);
+        resetForm();
+        setNotify({
+          isOpen: true,
+          message: "Neuen Artikel eingefügt!",
+          type: "success",
+        });
+        setSelectedRecord(null);
+        setOpenPopup(false);
+        setAction("")
+        fetchData();
+      } catch (err) {
+        console.log(err);
+        setNotify({
+          isOpen: true,
+          message: "Fehler beim speichern des Artikels!",
+          type: "error",
+        });
+      }
+    } else {
+      try {
+        await BlockAPI.put(`/articles/${rec.id}`, newRec);
+        resetForm();
+        setNotify({
+          isOpen: true,
+          message: "Artikel bearbeitet!",
+          type: "success",
+        });
+        setSelectedRecord(null);
+        setOpenPopup(false);
+        fetchData();
+      } catch (error) {
+        console.log(error);
+        setNotify({
+          isOpen: true,
+          message: "Fehler beim bearbeiten des Artikels!",
+          type: "error",
+        });
+      }
+    }
+  };
+
+  const handleDelete = async (rec) => {
+    const id = rec.rec.id;
+    setConfirmDialog({ ...confirmDialog, isOpen: false });
+    try {
+      await BlockAPI.delete(`/articles/${id}`);
+      fetchData();
+      setNotify({
+        isOpen: true,
+        message: "Erfolgreich gelöscht!",
+        type: "success",
+      });
+    } catch (error) {
+      console.log(error);
+      setNotify({
+        isOpen: true,
+        message: "Fehler beim löschen des Artikels!",
+        type: "error",
+      });
     }
   };
 
@@ -154,6 +206,49 @@ export default function TableList() {
     fetchData();
     // eslint-disable-next-line
   }, []);
+
+  const openInPopup = (rec, action) => {
+    // console.log(rec.rec);
+    setSelectedRecord(rec.rec);
+    setAction(action);
+    setOpenPopup(true);
+  };
+
+  const ActionButtons = (rec) => {
+    return (
+      <>
+        <Controls.ActionButton
+          color="success"
+          type="content"
+          onClick={() => hist.push(`/admin/blocksdetail/${rec.rec.id}`)}
+        />
+        <Controls.ActionButton
+          color="warning"
+          type="copy"
+          onClick={() => openInPopup(rec, actions.copy)}
+        />
+        <Controls.ActionButton
+          color="primary"
+          type="edit"
+          onClick={() => openInPopup(rec, actions.edit)}
+        />
+        <Controls.ActionButton
+          color="secondary"
+          type="close"
+          onClick={() => {
+            setConfirmDialog({
+              isOpen: true,
+              title: "Sind Sie sich sicher?",
+              subtitle: "Datensatz wird unwiederuflich gelöscht.",
+              onConfirm: () => {
+                handleDelete(rec);
+              },
+            });
+          }}
+        />
+      </>
+    );
+  };
 
   return (
     <GridContainer>
@@ -177,14 +272,16 @@ export default function TableList() {
                 ),
               }}
             />
-            <Controls.Button
-              text="Add New"
+            <Button
+              color="primary"
               onClick={() => {
-                // setOpenPopup(true);
-                // setSelectedRecord(null);
+                setOpenPopup(true);
+                setSelectedRecord(null);
               }}
-              startIcon={<AddIcon />}
-            />
+            >
+              <AddIcon />
+              Add new Article
+            </Button>
           </Toolbar>
 
           <DataGrid
@@ -197,6 +294,18 @@ export default function TableList() {
           />
         </Paper>
       </GridItem>
+      <Controls.Popup
+        title={selectedRecord ? action === actions.copy ? "Copy article" : "Edit Article" : "Add new Article"}
+        openPopup={openPopup}
+        setOpenPopup={setOpenPopup}
+      >
+        <ArticlesForm addOrEdit={addOrEdit} selectedRecord={selectedRecord} action={action} />
+      </Controls.Popup>
+      <Controls.Notification notify={notify} setNotify={setNotify} />
+      <Controls.ConfirmDialog
+        confirmDialog={confirmDialog}
+        setConfirmDialog={setConfirmDialog}
+      />
     </GridContainer>
   );
 }

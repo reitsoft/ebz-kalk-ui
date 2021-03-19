@@ -166,7 +166,7 @@ const BlocksDetail = (props) => {
                   <TableCell>
                     <Controls.ActionButton
                       color="primary"
-                      type="delete"
+                      type="close"
                       onClick={() => {
                         setConfirmDialog({
                           isOpen: true,
